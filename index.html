@@ -73,6 +73,14 @@
                 </section>
             </section>
         </div>
+        <dialog class="edit-loc-modal" onclose="app.onCloseLocEdit()">
+            <form class="edit-form" onsubmit="app.onSaveLoc()" method="dialog">
+                <input class="loc-name" type="text" placeholder="Enter location name">
+                <input class="loc-rate" type="number" placeholder="Enter rating (1-5)">
+                <button type="button" onclick="app.onCloseLocEdit()">x</button>
+                <button>Save</button>
+            </form>
+        </dialog>
     </main>
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>

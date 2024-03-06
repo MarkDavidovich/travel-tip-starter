@@ -3,6 +3,7 @@
 @import url(cmps/user-msg.css);
 @import url(cmps/locs.css);
 @import url(cmps/selected-loc.css);
+@import url(cmps/loc-edit-modal.css);
 
 @media (min-width: 750px) {
     main {

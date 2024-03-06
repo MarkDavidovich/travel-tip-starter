@@ -3,6 +3,8 @@ import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
 let gUserPos
+let gGeoData
+let gEditLocId
 
 window.onload = onInit
 
@@ -18,6 +20,8 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSetFilterBy,
+    onSaveLoc,
+    onCloseLocEdit
 }
 
 function onInit() {
@@ -45,7 +49,6 @@ function renderLocs(locs) {
         }
         // <span>Distance: ${utilService.getDistance(gUserPos, coords, 'K')} KM</span>
         const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : 'unknown'
-        console.log(coords)
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
@@ -109,13 +112,31 @@ function onSearchAddress(ev) {
 }
 
 function onAddLoc(geo) {
-    const locName = prompt('Loc name', geo.address || 'Just a place')
+    const elEditModal = document.querySelector('.edit-loc-modal')
+    elEditModal.showModal()
+
+    gGeoData = geo
+}
+
+function onSaveLoc() {
+    const elForm = document.querySelector('.edit-form')
+    const locName = elForm.querySelector('.loc-name').value || 'Just a place'
+    const locRate = elForm.querySelector('.loc-rate').value || '3'
     if (!locName) return
 
+    if (gEditLocId) {
+        updateLoc(locName, locRate)
+        gEditLocId = null
+    } else {
+        addLoc(locName, locRate)
+    }
+}
+
+function addLoc(locName, locRate) {
     const loc = {
         name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
-        geo
+        rate: locRate,
+        geo: gGeoData
     }
     locService.save(loc)
         .then((savedLoc) => {
@@ -127,6 +148,14 @@ function onAddLoc(geo) {
             console.error('OOPs:', err)
             flashMsg('Cannot add location')
         })
+}
+
+function onCloseLocEdit() {
+    const elEditModal = document.querySelector('.edit-loc-modal')
+    elEditModal.close()
+
+    const elForm = document.querySelector('.edit-form')
+    elForm.reset()
 }
 
 function loadAndRenderLocs() {
@@ -156,20 +185,36 @@ function onPanToUserPos() {
 function onUpdateLoc(locId) {
     locService.getById(locId)
         .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
-            if (rate !== loc.rate) {
-                loc.rate = rate
-                locService.save(loc)
-                    .then(savedLoc => {
-                        flashMsg(`Rate was set to: ${savedLoc.rate}`)
-                        loadAndRenderLocs()
-                    })
-                    .catch(err => {
-                        console.error('OOPs:', err)
-                        flashMsg('Cannot update location')
-                    })
-            }
+            const elForm = document.querySelector('.edit-form')
+            elForm.querySelector('.loc-name').value = loc.name
+            elForm.querySelector('.loc-rate').value = loc.rate
+            document.querySelector('.edit-loc-modal').showModal()
         })
+
+    gEditLocId = locId
+}
+
+function updateLoc(locName, locRate) {
+    locService.getById(gEditLocId)
+        .then(loc => {
+            const wasNameChanged = locName !== loc.name
+            const wasRateChanged = locRate !== loc.rate
+            if (!wasNameChanged && !wasRateChanged) return
+            loc.name = locName
+            loc.rate = locRate
+            locService.save(loc)
+                .then(savedLoc => {
+                    let msg = wasNameChanged ? `Name was set to: ${savedLoc.name}` : ''
+                    if (wasRateChanged) msg += `\nRate was set to: ${savedLoc.rate}`
+                    flashMsg(msg.trim())
+                    loadAndRenderLocs()
+                })
+                .catch(err => {
+                    console.error('OOPs:', err)
+                    flashMsg('Cannot update location')
+                })
+        }
+        )
 }
 
 function onSelectLoc(locId) {
