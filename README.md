@@ -51,7 +51,8 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
+    getLocCountByUpdatesMap
 }
 
 export const mapService = {
@@ -78,7 +79,9 @@ window.app = {
     onCopyLoc,
     onShareLoc,
     onSetSortBy,
-    onSetFilterBy
+    onSetFilterBy,
+    onSaveLoc,
+    onCloseLocEdit
 }
 ```
 
