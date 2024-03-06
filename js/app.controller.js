@@ -188,9 +188,16 @@ function displayLoc(loc) {
     mapService.panTo(loc.geo)
     mapService.setMarker(loc)
 
+    const coords = {
+        lat: loc.geo.lat,
+        lng: loc.geo.lng
+    }
+
     const el = document.querySelector('.selected-loc')
     el.querySelector('.loc-name').innerText = loc.name
     el.querySelector('.loc-address').innerText = loc.geo.address
+    const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : 'unknown'
+    el.querySelector('.loc-distance').innerText = userDistance
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
     el.classList.add('show')
