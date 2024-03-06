@@ -32,10 +32,6 @@ function onInit() {
             console.error('OOPs:', err)
             flashMsg('Cannot init map')
         })
-    mapService.getUserPosition()
-        .then((LatLng) => {
-            gUserPos = { lng: LatLng.lng, lat: LatLng.lng }
-        })
 }
 
 function renderLocs(locs) {
@@ -47,15 +43,14 @@ function renderLocs(locs) {
             lat: loc.geo.lat,
             lng: loc.geo.lng
         }
-        // const distanceFromUser = utilService.getDistance(gUserPos, coords, 'K')
-
-        // //TODO USER LOCATION
+        // <span>Distance: ${utilService.getDistance(gUserPos, coords, 'K')} KM</span>
+        const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : 'unknown'
         console.log(coords)
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
-                <span>Distance: ${utilService.getDistance(gUserPos, coords, 'K')} KM</span>
+                <span>Distance: ${userDistance}</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
@@ -150,6 +145,7 @@ function onPanToUserPos() {
             unDisplayLoc()
             loadAndRenderLocs()
             flashMsg(`You are at Latitude: ${latLng.lat} Longitude: ${latLng.lng}`)
+            gUserPos = { lat: latLng.lat, lng: latLng.lng }
         })
         .catch(err => {
             console.error('OOPs:', err)
@@ -172,7 +168,6 @@ function onUpdateLoc(locId) {
                         console.error('OOPs:', err)
                         flashMsg('Cannot update location')
                     })
-
             }
         })
 }
@@ -271,6 +266,9 @@ function onSetFilterBy({ txt, minRate }) {
 function renderLocStats() {
     locService.getLocCountByRateMap().then(stats => {
         handleStats(stats, 'loc-stats-rate')
+    })
+    locService.getLocCountByUpdatesMap().then(stats => {
+        handleStats(stats, 'loc-stats-last-updated')
     })
 }
 
