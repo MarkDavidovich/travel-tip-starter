@@ -2,6 +2,8 @@ import { utilService } from './services/util.service.js'
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
+let gUserPos
+
 window.onload = onInit
 
 // To make things easier in this project structure 
@@ -30,6 +32,10 @@ function onInit() {
             console.error('OOPs:', err)
             flashMsg('Cannot init map')
         })
+    mapService.getUserPosition()
+        .then((LatLng) => {
+            gUserPos = { lng: LatLng.lng, lat: LatLng.lng }
+        })
 }
 
 function renderLocs(locs) {
@@ -37,12 +43,19 @@ function renderLocs(locs) {
 
     var strHTML = locs.map(loc => {
         const className = (loc.id === selectedLocId) ? 'active' : ''
+        const coords = {
+            lat: loc.geo.lat,
+            lng: loc.geo.lng
+        }
+        // const distanceFromUser = utilService.getDistance(gUserPos, coords, 'K')
+
+        // //TODO USER LOCATION
+        console.log(coords)
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
-                //TODO USER LOCATION
-                <span></span>
+                <span>Distance: ${utilService.getDistance(gUserPos, coords, 'K')} KM</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
