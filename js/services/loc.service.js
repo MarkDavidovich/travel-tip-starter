@@ -106,9 +106,9 @@ function getLocCountByUpdatesMap() {
     return storageService.query(DB_KEY)
         .then(locs => {
             const locCountByUpdateMap = locs.reduce((map, loc) => {
-                if (utilService.elapsedTime(loc.updatedAt) === 'just now' || 
-                utilService.elapsedTime(loc.updatedAt) === `last hour` ||
-                utilService.elapsedTime(loc.updatedAt) === `today`) map.today++
+                if (utilService.elapsedTime(loc.updatedAt) === 'just now' ||
+                    utilService.elapsedTime(loc.updatedAt) === `last hour` ||
+                    utilService.elapsedTime(loc.updatedAt) === `today`) map.today++
                 else if (!loc.updatedAt === loc.createdAt) map.past++
                 else map.never++
                 return map

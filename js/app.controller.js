@@ -182,22 +182,29 @@ function onSelectLoc(locId) {
 }
 
 function displayLoc(loc) {
+    const coords = {
+        lat: loc.geo.lat,
+        lng: loc.geo.lng
+    }
+
+    const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : ' unknown'
+    const el = document.querySelector('.selected-loc')
+
     document.querySelector('.loc.active')?.classList?.remove('active')
     document.querySelector(`.loc[data-id="${loc.id}"]`).classList.add('active')
 
     mapService.panTo(loc.geo)
     mapService.setMarker(loc)
 
-    const coords = {
-        lat: loc.geo.lat,
-        lng: loc.geo.lng
-    }
-
-    const el = document.querySelector('.selected-loc')
     el.querySelector('.loc-name').innerText = loc.name
     el.querySelector('.loc-address').innerText = loc.geo.address
-    const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : 'unknown'
-    el.querySelector('.loc-distance').innerText = userDistance
+    const elDistance = el.querySelector('.loc-distance')
+    if (userDistance === 'unknown') {
+        elDistance.innerText = 'Distance: unknown'
+    } else {
+        elDistance.innerText = `Distance: ${userDistance}`
+    }
+    // el.querySelector('.loc-distance').innerText = userDistance
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
     el.classList.add('show')
