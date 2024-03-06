@@ -47,13 +47,12 @@ function renderLocs(locs) {
             lat: loc.geo.lat,
             lng: loc.geo.lng
         }
-        // <span>Distance: ${utilService.getDistance(gUserPos, coords, 'K')} KM</span>
-        const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : 'unknown'
+        const userDistance = gUserPos ? ' Distance: ' + utilService.getDistance(gUserPos, coords, 'K') + 'KM' : ''
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
-                <span>Distance: ${userDistance}</span>
+                <span>${userDistance}</span>
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
@@ -232,24 +231,18 @@ function displayLoc(loc) {
         lng: loc.geo.lng
     }
 
-    const userDistance = gUserPos ? utilService.getDistance(gUserPos, coords, 'K') + 'KM' : ' unknown'
-    const el = document.querySelector('.selected-loc')
-
+    const userDistance = gUserPos ? ' Distance: ' + utilService.getDistance(gUserPos, coords, 'K') + 'KM' : ''
+    
     document.querySelector('.loc.active')?.classList?.remove('active')
     document.querySelector(`.loc[data-id="${loc.id}"]`).classList.add('active')
-
+    
     mapService.panTo(loc.geo)
     mapService.setMarker(loc)
-
+    
+    const el = document.querySelector('.selected-loc')
     el.querySelector('.loc-name').innerText = loc.name
     el.querySelector('.loc-address').innerText = loc.geo.address
-    const elDistance = el.querySelector('.loc-distance')
-    if (userDistance === 'unknown') {
-        elDistance.innerText = 'Distance: unknown'
-    } else {
-        elDistance.innerText = `Distance: ${userDistance}`
-    }
-    // el.querySelector('.loc-distance').innerText = userDistance
+    el.querySelector('.loc-distance').innerText = userDistance
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
     el.classList.add('show')
